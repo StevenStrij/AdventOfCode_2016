@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <map>
+#include <set>
 
 int main() {
   std::string line;
@@ -9,32 +9,30 @@ int main() {
 
 
   while (std::getline(std::cin, line)) {
-    char ch;
     bool inBrackets = false;
     bool valid = false;
 
     // True if in brackets
-    std::map<std::string, bool> seqs{};
+    std::set<std::string> in, out;
 
     std::cout << line << std::endl;
     for (int i = 0; i < line.length() - 2; ++i) {
-      ch = line[i];
-      if (ch == '[') inBrackets = true;
-      if (ch == ']') inBrackets = false;
-
-      if (line[i] == line[i + 2] && line[i] != line[i + 1]) {
-        std::string sub(line.begin() + i, line.begin() + i + 3);
-        std::string rev{sub[1], sub[0], sub[1]};
+      if (line[i] == '[') inBrackets = true;
+      else if (line[i] == ']') inBrackets = false;
+      else if (line[i] == line[i + 2] && line[i] != line[i + 1]) {
+        std::string sub{line[i], line[i + 1]};
+        std::string rev{line[i + 1], line [i]};
         std::cout << sub << std::endl;
 
-        if (seqs.find(rev) != seqs.end()) {
-          if (seqs[rev] == !inBrackets) {
-            std::cout << "Found under " << sub << " -- " << rev << std::endl;
-            valid = true;
-            break;
-          }
-        }
-        seqs[sub] = inBrackets;
+        if   (inBrackets) in.insert(rev);
+        else              out.insert(sub);
+      }
+    }
+
+    for (std::string i: in) {
+      if (out.find(i) != out.end()) {
+        valid = true;
+        break;
       }
     }
 
