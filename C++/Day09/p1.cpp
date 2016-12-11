@@ -20,38 +20,60 @@ std::pair<int, int> extract(const std::string& line, int& iter) {
     ++iter;
   }
   res.second = stoi(num);
+  ++iter;
 
   return res;
 }
 
-int main() {
-  std::string str{};
-  std::string line;
-
-  while (std::getline(std::cin, line)) {
-    str.append(line);
-  }
-
+void expand(std::string& str, int& start, int depth) {
   std::pair<int, int> mult;
-  for (int iter = 0; iter < str.length();) {
-    if (str[iter] == '(') {
-      int tmp(iter);
-      mult = extract(str, iter);
-      str.erase(str.begin() + tmp, str.begin() + iter + 1);
 
-      std::string toMult{};
-      iter = tmp + mult.first * mult.second;
-      while (mult.second > 1) {
-        toMult += str.substr(tmp, mult.first);
-        --mult.second;
-      }
-      str.insert(tmp, toMult);
-    } else {
-      ++iter;
+  int ex1, ex2;
+  ex1 = ex2 = start;
+  mult = extract(str, ex2);
+
+  std::string toMult(str.begin() + ex2, str.begin() + ex2 + mult.first);
+
+  str.erase(ex1, ex2 - ex1 + mult.first);
+
+  int length = toMult.length();
+  for (int i = 0; i < length; ++i) {
+    while (toMult[i] == '(') {
+      expand(toMult, i, depth + 1);
+      length = toMult.length();
     }
   }
 
-  std::cout << str.length() << std::endl;
+  for (int i = 0; i < mult.second; ++i) {
+    str.insert(start, toMult);
+  }
+  start += toMult.length() * mult.second;
+
+
+
+  /* std::string toMult{}; */
+  /* iter = tmp + mult.first * mult.second; */
+  /* while (mult.second > 1) { */
+  /*   toMult += str.substr(tmp, mult.first); */
+  /*   --mult.second; */
+  /* } */
+  /* str.insert(tmp, toMult); */
+
+}
+
+int main() {
+  std::string line;
+
+  while (std::getline(std::cin, line)) {
+    for (int iter = 0; iter < line.length(); ++iter) {
+      while (line[iter] == '(') {
+        expand(line, iter, 0);
+      }
+    }
+    std::cout << line.length() << std::endl;
+  }
+
+
 
   return 0;
 }
